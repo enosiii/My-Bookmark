@@ -194,7 +194,7 @@
         }
 
         .category-container {
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .category-header {
@@ -204,6 +204,7 @@
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #eee;
+            cursor: pointer;
         }
 
         .category-title {
@@ -215,19 +216,43 @@
             gap: 0.5rem;
         }
 
-        .bookmarks-grid {
+        /* .bookmarks-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        } */
+
+        .bookmarks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .bookmarks-grid.expanded {
+            max-height: 100%; /* Adjust this value as needed */
+            opacity: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .bookmarks-grid.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-bottom: 0;
         }
 
         .bookmark-card {
             background: white;
             border-radius: 10px;
-            padding: 1.5rem;
+            padding: 0.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: var(--transition);
-            border-left: 4px solid var(--primary-color);
+            border-left: 8px solid var(--primary-color);
             position: relative;
             overflow: hidden;
         }
@@ -266,7 +291,7 @@
         }
 
         .color-picker-label {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #666;
         }
 
@@ -274,7 +299,7 @@
             width: 30px;
             height: 30px;
             border: 2px solid #eee;
-            border-radius: 50%;
+            border-radius: 0px;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -307,6 +332,19 @@
             background-color: var(--secondary-color);
             color: white;
             margin-left: 0.5rem;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        /* .category-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        } */
+
+        .category-header:not(.expanded) .toggle-icon {
+            transform: rotate(-90deg);
         }
 
         /* Modal Styles */
@@ -652,6 +690,9 @@
 
                 const categoryHeader = document.createElement('div');
                 categoryHeader.className = 'category-header';
+                categoryHeader.onclick = function() {
+                    toggleCategory(this);
+                };
 
                 const categoryTitle = document.createElement('div');
                 categoryTitle.className = 'category-title';
@@ -659,6 +700,10 @@
                 const categoryIcon = document.createElement('i');
                 categoryIcon.className = 'fas fa-folder';
                 categoryIcon.style.color = categories[category] ? categories[category].color : '#6c5ce7';
+                
+                // Add toggle icon
+                const toggleIcon = document.createElement('i');
+                toggleIcon.className = 'fas fa-chevron-down toggle-icon';
                 
                 categoryTitle.appendChild(categoryIcon);
                 categoryTitle.appendChild(document.createTextNode(category));
@@ -695,6 +740,7 @@
                 colorPickerContainer.appendChild(colorPicker);
                 
                 categoryHeader.appendChild(categoryTitle);
+                categoryHeader.appendChild(toggleIcon);
                 categoryHeader.appendChild(colorPickerContainer);
                 categoryContainer.appendChild(categoryHeader);
 
@@ -705,7 +751,7 @@
                     const bookmarkButton = document.createElement('button');
                     bookmarkButton.className = 'btn btn-bookmark';
                     bookmarkButton.style.borderLeftColor = categories[category] ? categories[category].color : '#6c5ce7';
-                    bookmarkButton.style.borderLeftWidth = '4px';
+                    bookmarkButton.style.borderLeftWidth = '6px';
                     bookmarkButton.style.borderLeftStyle = 'solid';
                     
                     const bookmarkContent = document.createElement('div');
@@ -744,8 +790,36 @@
                     bookmarksGrid.appendChild(bookmarkButton);
                 });
 
+                // Set initial height for animation
+                bookmarksGrid.style.maxHeight = bookmarksGrid.scrollHeight + 'px';
+                
                 categoryContainer.appendChild(bookmarksGrid);
                 bookmarkList.appendChild(categoryContainer);
+            }
+        }
+
+        // function toggleCategory(headerElement) {
+        //     headerElement.classList.toggle('collapsed');
+        //     const bookmarksGrid = headerElement.nextElementSibling;
+        //     bookmarksGrid.classList.toggle('collapsed');
+        //     bookmarksGrid.style.maxHeight = bookmarksGrid.scrollHeight + 'px';
+            
+        //     if (!bookmarksGrid.classList.contains('collapsed')) {
+        //         bookmarksGrid.style.maxHeight = bookmarksGrid.scrollHeight + 'px';
+        //     } else {
+        //         bookmarksGrid.style.maxHeight = '0';
+        //     }
+        // }
+
+        function toggleCategory(headerElement) {
+            headerElement.classList.toggle('expanded');
+            const bookmarksGrid = headerElement.nextElementSibling;
+            bookmarksGrid.classList.toggle('expanded');
+            
+            if (bookmarksGrid.classList.contains('expanded')) {
+                bookmarksGrid.style.maxHeight = bookmarksGrid.scrollHeight + 'px';
+            } else {
+                bookmarksGrid.style.maxHeight = '0';
             }
         }
 
